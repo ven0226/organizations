@@ -33,23 +33,33 @@ async function getOrgsByName(name){
     }
 }
 
-function getOrgsByCode(){
-
+async function getOrgsByCode(code){
+    let connection;
+    try {
+        connection = await dao.getConnection();
+        const [rows] = await connection.execute('SELECT * FROM organizations where code = ?', [code]);
+        return rows;
+    } catch (err) {
+        throw err;
+    } finally {
+        connection && connection.end();
+    }
 }
 
 async function addOrgs(data){
     let connection;
-    const values = []
     try {
-        const row = [];
-        row.push(data.name);
-        row.push(data.code);
-        row.push(data.description || '');
-        row.push(data.URL || '');
-        row.push(data.type);
-        values.push(row);
-        const connection = await getConnection();
-        await connection.execute('Insert into organizations (name, code, description, url, type) values ?', [values]);
+        const row = {
+            name: data.name,
+            code: data.code,
+            description: data.description || '',
+            URL: data.URL || '',
+            type: data.type,
+        };
+        connection = await dao.getConnection();
+        const query = 'INSERT INTO organizations SET ?';
+        const [insert] = await connection.query(query, [row]);
+        return insert;
     } catch (err) {
         throw err;
     } finally {
@@ -60,6 +70,7 @@ async function addOrgs(data){
 module.exports = {
     getOrgs,
     getOrgsByName,
+    getOrgsByCode,
     addOrgs,
 }
 

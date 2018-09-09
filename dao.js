@@ -1,3 +1,5 @@
+'use strict';
+
 const mysql = require('mysql2/promise');
 
 async function getConnection(){
@@ -9,11 +11,6 @@ async function getConnection(){
     });
 }
 
-async function execute(conn, query, args){
-    return conn.execute(query, args);
-}
-
 module.exports = {
     getConnection,
-    execute,
 };

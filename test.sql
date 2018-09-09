@@ -3,7 +3,7 @@
 CREATE TABLE organizations (
     ID int NOT NULL AUTO_INCREMENT,
     name varchar(255) NOT NULL ,
-    code varchar(255) NOT NULL,
+    code varchar(255) UNIQUE NOT NULL,
     description varchar(255),
     URL varchar(255),
     type varchar(255),
