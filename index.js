@@ -1,22 +1,18 @@
-const mysql = require('mysql2/promise');
-
-function getConnection(){
-    return mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        database: 'project',
-        insecureAuth : true,
-    });
-}
+const dao = require('./dao');
 
 async function getOrgs() {
     let connection;
     try {
-        const connection = await getConnection();
+        connection = await dao.getConnection();
         const [rows] = await connection.execute('SELECT * FROM organizations');
-        return rows;
+        return rows.map(row => ({
+            name: row.name,
+            type: row.type,
+            description: row.description,
+            code: row.code,
+            URL: row.URL,
+        }));
     } catch (err) {
-        console.log(err);
         throw err;
     } finally {
         connection && connection.end();
@@ -27,11 +23,10 @@ async function getOrgs() {
 async function getOrgsByName(name){
     let connection;
     try {
-        const connection = await getConnection();
+        connection = await dao.getConnection();
         const [rows] = await connection.execute('SELECT * FROM organizations where name = ?', [name]);
         return rows;
     } catch (err) {
-        console.log(err);
         throw err;
     } finally {
         connection && connection.end();
@@ -56,7 +51,6 @@ async function addOrgs(data){
         const connection = await getConnection();
         await connection.execute('Insert into organizations (name, code, description, url, type) values ?', [values]);
     } catch (err) {
-        console.log(err);
         throw err;
     } finally {
         connection && connection.end();

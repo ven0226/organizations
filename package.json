@@ -10,14 +10,12 @@
   "license": "ISC",
   "dependencies": {
     "chai": "^4.1.2",
-    "crypto-js": "^3.1.9-1",
     "express": "^4.16.3",
     "hapi": "^17.5.4",
     "hapi-auth-jwt2": "^8.1.0",
     "joi": "^13.6.0",
+    "jsonwebtoken": "^8.3.0",
     "mocha": "^5.2.0",
-    "mysql": "^2.16.0",
-    "mysql2": "^1.6.1",
-    "nodemon": "^1.18.4"
+    "mysql2": "^1.6.1"
   }
 }
