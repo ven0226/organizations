@@ -2,23 +2,20 @@ const Hapi = require("hapi");
 const Joi = require("joi");
 const org = require('./index');
 const hapiJwt = require('hapi-auth-jwt2');
-const CryptoJS = require("crypto-js");
+const jsonwebtoken = require('jsonwebtoken');
 
 const people = {
-    1: {
         id: 1,
         name: 'Jen Jones'
-    }
-};
+    };
 
 const header = {
     alg: "HS256",
     typ: "jwt"
 };
 
-const validate = (decoded, request, response) =>  {
-    console.log('~~~~', decoded);
-    if (!people[decoded.id]) {
+const validateToken = (decoded, request, response) =>  {
+    if (!decoded.id) {
         return { isValid: false };
     }
     else {
@@ -37,7 +34,7 @@ const init = async () => {
     server.auth.strategy('jwt', 'jwt',
         {
             key: 'secret key 123',
-            validate: validate,
+            validate: validateToken,
             verifyOptions: { algorithms: ['HS256'] }
         });
 
@@ -48,33 +45,7 @@ const init = async () => {
         method: "GET",
         path: "/token",
         config: { auth: false },
-        handler: (request, response) => {
-            const base64url = (source) => {
-                // Encode in classical base64
-                encodedSource = CryptoJS.enc.Base64.stringify(source);
-                
-                // Remove padding equal characters
-                encodedSource = encodedSource.replace(/=+$/, '');
-                
-                // Replace characters according to base64url specifications
-                encodedSource = encodedSource.replace(/\+/g, '-');
-                encodedSource = encodedSource.replace(/\//g, '_');
-                
-                return encodedSource;
-              }
-              const secret = 'secret key 123';
-              const stringifiedHeader = CryptoJS.enc.Utf8.parse(JSON.stringify(header));
-              const encodedHeader = base64url(stringifiedHeader);
-              
-              const stringifiedData = CryptoJS.enc.Utf8.parse(JSON.stringify(people));
-              const encodedData = base64url(stringifiedData);
-              
-              let signature = encodedHeader + "." + encodedData;
-              console.log(signature);
-              signature = CryptoJS.HmacSHA256(signature, secret);
-              signature = base64url(signature);
-              return signature;
-        }
+        handler: (request, response) => jsonwebtoken.sign(people, 'secret key 123')
     });
     server.route({
         method: "GET",
