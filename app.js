@@ -5,16 +5,11 @@ const hapiJwt = require('hapi-auth-jwt2');
 const jsonwebtoken = require('jsonwebtoken');
 
 const people = {
-        id: 1,
-        name: 'Jen Jones'
-    };
-
-const header = {
-    alg: "HS256",
-    typ: "jwt"
+    id: 1,
+    name: 'Super Man',
 };
 
-const validateToken = (decoded, request, response) =>  {
+const validateToken = (decoded, request, response) => {
     if (!decoded.id) {
         return { isValid: false };
     }
@@ -40,7 +35,7 @@ const init = async () => {
 
     server.auth.default('jwt');
 
-    
+
     server.route({
         method: "GET",
         path: "/token",
@@ -62,7 +57,8 @@ const init = async () => {
                 params: {
                     name: Joi.string().required()
                 },
-            }
+            },
+            auth: 'jwt'
         },
         handler: (request, response) => org.getOrgsByName(request.params.name),
     });
@@ -70,7 +66,15 @@ const init = async () => {
     server.route({
         method: "GET",
         path: "/org/code/{code}",
-        handler: (request, response) => 'not implemented'
+        config: {
+            validate: {
+                params: {
+                    code: Joi.string().required()
+                },
+            },
+            auth: 'jwt'
+        },
+        handler: (request, response) => org.getOrgsByCode(request.params.code),
     });
 
     server.route({
@@ -84,7 +88,7 @@ const init = async () => {
                     type: Joi.string().required(),
                 }
             },
-            auth: false,
+            auth: 'jwt',
         },
         handler: async (request, response) => org.addOrgs(request.payload),
     });
@@ -96,6 +100,6 @@ const init = async () => {
 init().then(server => {
     console.log('Server running at:', server.info.uri);
 })
-.catch(error => {
-    console.log(error);
-});
+    .catch(error => {
+        console.log(error);
+    });
